@@ -1,0 +1,66 @@
+#!/bin/bash
+##RAQUEL HERNÁNDEZ AUSTRIA FEBRUARY 2020
+
+##Script for resolve the incises a-j of Unit 5 with VCFtools
+
+##On "bin" directory created with Sript 1, run VCFtools on a container with docker 
+##The flag -u 1600 only is used when we are using the CONABIO's cluster
+
+##Obtain the path
+pwd
+
+##Run VCFtools on a container with docker 
+docker run -u 1600 --rm -v /home/cirio/raquelha/BioinfinvRepro/Unidad5/ProjectUni5/data:/data biocontainers/vcftools:0.1.15 vcftools -help
+
+##Create a variable named "VCFtools" to summarize the previuos command: when we need run VCFtools, we only might write the variable 
+vcftools="docker run -u 1600 --rm -v /home/cirio/raquelha/BioinfinvRepro/Unidad5/ProjectoUni5/data:/data biocontainers/vcftools:0.1.15 vcftools"
+
+## Run the variable
+$vcftools -help
+
+##See the file "wolves.vcf" with the flag "--vcf"
+##	A) How many individuals and variants (SNPs) does the file have? 107 individuals and 13092 SNPS
+$vcftools --vcf wolves.vcf
+
+##	B) Calculate the frequency of each allele for all individuals within the file wolves and save the result in a file
+$vcftools --vcf wolves.vcf --freq --out frequencies
+
+##	Show the content of "frequencies"
+head frequencies.frq
+
+##	C) How many sites do not have missing data in the file?  9085 sites
+$vcftools --vcf wolves.vcf --max-missing 1
+
+##	D) Calculate the frequency of each allele for all individuals but only for sites without missing data and save the result in a file
+$vcftools --vcf wolves.vcf --max-missing 1 --freq --out nomissingdata
+
+## 	Show the content of nomissingdata file
+head nomissingdata.frq
+
+##	E) How many sites have a lower allele frequency <0.05? 5224 sites
+$vcftools --vcf wolves.vcf --max-maf 0.05
+
+##	F)  Calculate the heterozygosity of each individual
+$vcftools --vcf wolves.vcf --het --out heterozygosity
+
+
+##	G)  Calculate nucleotide diversity per site
+$vcftools --vcf wolves.vcf --site-pi --out ndiversity
+
+## Show the nucleotide diversity
+head ndiversity.sites.pi
+
+##	H)  Calculate nucleotide diversity per site only for chromosome 3 sites
+$vcftools --vcf wolves.vcf --chr chr03 --site-pi --out nucleodiversity_chr03
+
+## 	Show the nucleotide diversity chr03
+head ndiversity_chr03.sites.pi
+
+##	I)  Filter sites that have a minor allele frequency <0.05 and create a new file called wolves_maf05.vcf
+$vcftools --vcf wolves.vcf --max-maf 0.05 --recode --out wolves_maf05
+
+##	J)  Convert the wolves_maf05.vcf file to plink format
+$vcftools --vcf wolves_maf05.recode.vcf --plink 
+
+
+
